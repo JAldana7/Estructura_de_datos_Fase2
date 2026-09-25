@@ -116,26 +116,22 @@ class ReporteView(tk.Toplevel):
         self._crear_fila_detalle(card_detalle, "📅  Sesiones tomadas", str(self.cliente.numero_sesiones))
 
         # Fila C: Costo por Sesión
-        self._crear_fila_detalle(card_detalle, "💵  Costo por sesión", f"$ {self.cliente.costo_sesion:,.0f}")
+        # Línea 119 corregida:
+        costo_s = float(self.cliente.costo_sesion)
+        self._crear_fila_detalle(card_detalle, "💵  Costo por sesión", f"$ {costo_s:,.0f}")
 
-        # Fila D: Fecha de Registro
-        self._crear_fila_detalle(card_detalle, "🗓️  Fecha de registro", self.cliente.fecha_registro)
-
-        # Separador visual
-        ttk.Separator(card_detalle, orient="horizontal").pack(fill="x", pady=15)
+        # Línea 140 (Fórmula) corregida:
+        lbl_formula = tk.Label(
+            card_detalle, 
+            text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {costo_s:,.0f}", 
+            font=("Segoe UI", 9, "italic"), 
+            bg=self.COLOR_TARJETA, 
+            fg="#64748B"
+        )
 
         # --- SECCIÓN DESTACADA: COSTO TOTAL DEL SERVICIO ---
         frame_costo_total = tk.Frame(card_detalle, bg=self.COLOR_TARJETA)
         frame_costo_total.pack(fill="x", pady=(0, 5))
-
-        lbl_tag_costo = tk.Label(
-            frame_costo_total, 
-            text=" 💰 Costo total del servicio ", 
-            font=("Segoe UI", 10, "bold"), 
-            bg="#D1E7DD", 
-            fg=self.COLOR_VERDE
-        )
-        lbl_tag_costo.pack(side="left")
 
         costo_total_val = self.cliente.calcular_costo_total()
         lbl_val_costo = tk.Label(

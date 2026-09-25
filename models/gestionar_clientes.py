@@ -41,7 +41,7 @@ class GestionClientes:
 
     @property
     def costo_sesion(self) -> float:
-        return self._costo_sesion
+        return self._menu.costo_sesion
     @property
     def fecha_registro(self) -> str:
         return self._fecha_registro
