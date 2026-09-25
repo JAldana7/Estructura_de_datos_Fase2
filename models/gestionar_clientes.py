@@ -24,8 +24,8 @@ class GestionClientes:
         return self._identificacion
 
     @property
-    def nombre_completo(self) -> str:
-        return self._nombre_completo
+    def nombre(self) -> str:
+        return self._nombre
 
     @property
     def genero(self) -> str:
@@ -40,8 +40,8 @@ class GestionClientes:
         return self._numero_sesiones
 
     @property
-    def costo_session(self) -> float:
-        return self._costo_session
+    def costo_sesion(self) -> float:
+        return self._costo_sesion
     @property
     def fecha_registro(self) -> str:
         return self._fecha_registro

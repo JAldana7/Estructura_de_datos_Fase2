@@ -8,12 +8,14 @@ from tkinter import ttk, messagebox
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class LoginView(tk.Tk):
-    def __init__(self):
+    def __init__(self, controller=None):
         try:
-            ctypes.windll.shcore.SetProcessDpiAwareness(1) #mejorar la resolucion
+            ctypes.windll.shcore.SetProcessDpiAwareness(1) # Mejorar la resolución
         except:
             pass
         super().__init__()
+
+        self.controller = controller
 
         # Configuración de la ventana principal
         self.title("Sabor & Sazón — Acceso")
@@ -29,6 +31,15 @@ class LoginView(tk.Tk):
 
         # Construir la interfaz
         self._crear_interfaz()
+
+    def set_controller(self, controller):
+        """Asigna el controlador y vincula las acciones de la UI con sus métodos."""
+        self.controller = controller
+        
+        # Conectar el botón de ingresar con la función procesar_login del controlador
+        self.btn_ingresar.config(command=self.controller.procesar_login)
+        # Conectar la tecla Enter en la caja de texto
+        self.txt_password.bind("<Return>", lambda event: self.controller.procesar_login())
 
     def _configurar_estilos(self):
         self.style = ttk.Style(self)
@@ -55,7 +66,6 @@ class LoginView(tk.Tk):
         header_frame = ttk.Frame(self, style="Header.TFrame", padding=(25, 20))
         header_frame.pack(fill="x", side="top")
 
-        # Contenedor de la izquierda (Logo y subtítulo)
         left_header = tk.Frame(header_frame, bg=self.COLOR_VERDE)
         left_header.pack(side="left")
 
@@ -77,7 +87,6 @@ class LoginView(tk.Tk):
         )
         lbl_subtitulo_header.pack(anchor="w", pady=(2, 0))
 
-        # Texto decorativo a la derecha
         lbl_slogan = tk.Label(
             header_frame, 
             text="Buena comida,\nmejores momentos", 
@@ -94,7 +103,7 @@ class LoginView(tk.Tk):
         card_frame = ttk.Frame(self, style="Card.TFrame", padding=25)
         card_frame.pack(fill="both", expand=True, padx=35, pady=25)
 
-        # --- SECCIÓN A: Datos del Autor / Estudiante ---
+        # Datos del Autor
         author_frame = tk.Frame(card_frame, bg="#FFFFFF")
         author_frame.pack(fill="x", pady=(0, 15))
 
@@ -122,13 +131,12 @@ class LoginView(tk.Tk):
         )
         lbl_carrera_autor.pack(anchor="w")
 
-        # Línea divisora
         ttk.Separator(card_frame, orient="horizontal").pack(fill="x", pady=10)
 
-        # --- SECCIÓN B: Indicaciones de la contraseña ---
+        # Indicaciones
         lbl_indicacion_titulo = tk.Label(
             card_frame, 
-            text="🛡️  Ingrese la contraseña para continuar", 
+            text="🛡️   Ingrese la contraseña para continuar", 
             font=("Segoe UI", 11, "bold"), 
             bg="#FFFFFF", 
             fg="#0F172A"
@@ -144,7 +152,7 @@ class LoginView(tk.Tk):
         )
         lbl_indicacion_sub.pack(anchor="w", pady=(0, 15))
 
-        # --- SECCIÓN C: Campo de Contraseña con icono de visibilidad ---
+        # Campo de Contraseña
         input_container = tk.Frame(card_frame, bg="#F8FAFC", highlightbackground="#CBD5E1", highlightthickness=1)
         input_container.pack(fill="x", pady=(0, 20))
 
@@ -172,7 +180,7 @@ class LoginView(tk.Tk):
         )
         self.btn_toggle_eye.pack(side="right", padx=10)
 
-        # --- SECCIÓN D: Botón Ingresar ---
+        # Botón Ingresar
         self.btn_ingresar = ttk.Button(
             card_frame, 
             text="➔   Ingresar al sistema   ➔", 
@@ -188,7 +196,7 @@ class LoginView(tk.Tk):
 
         lbl_footer = tk.Label(
             footer_frame, 
-            text="🛡️  Estructura de Datos  ·  Cod. 301305  ·  ECBTI", 
+            text="🛡️   Estructura de Datos  ·  Cod. 301305  ·  ECBTI", 
             font=("Segoe UI", 8), 
             bg=self.COLOR_FONDO, 
             fg="#64748B"
@@ -203,7 +211,7 @@ class LoginView(tk.Tk):
         else:
             self.txt_password.config(show="")
             self._password_visible = True
-
+"""
 if __name__ == "__main__":
     app = LoginView()
-    app.mainloop()
+    app.mainloop()"""
