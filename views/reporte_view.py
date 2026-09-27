@@ -2,6 +2,7 @@
 import sys, os
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 from models.gestionar_clientes import GestionClientes
 from utils.helpers import centrar_ventana
 
@@ -19,14 +20,18 @@ class ReporteView(tk.Toplevel):
         self.title("Sabor & Sazón — Reporte")
 
         # Obtener la carpeta principal del proyecto
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        ruta_icono = os.path.join(BASE_DIR, "img", "ico.png")
-        self.icono = tk.PhotoImage(file=ruta_icono)
-        self.iconphoto(False, self.icono)
+        try:
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ruta_icono = os.path.join(BASE_DIR, "img", "ico.png")
+            if os.path.exists(ruta_icono):
+                self.icono = tk.PhotoImage(file=ruta_icono)
+                self.iconphoto(False, self.icono)
+        except Exception as e:
+            print(f"No se pudo cargar el icono: {e}")
 
         # Configuración de tamaño y posición
         self.ancho = 500
-        self.alto = 580
+        self.alto = 610
         centrar_ventana(self, self.ancho, self.alto)
         self.configure(bg="#F4F6F8")
         self.resizable(False, False)
@@ -62,7 +67,7 @@ class ReporteView(tk.Toplevel):
 
         lbl_header = tk.Label(
             header_frame, 
-            text="📋  Reporte — Sabor & Sazón", 
+            text="📋   Reporte — Sabor & Sazón", 
             font=("Segoe UI", 14, "bold"), 
             bg=self.COLOR_VERDE, 
             fg="#FFFFFF"
@@ -115,29 +120,35 @@ class ReporteView(tk.Toplevel):
         card_detalle = tk.Frame(main_container, bg=self.COLOR_TARJETA, bd=1, relief="solid", highlightbackground="#E2E8F0", padx=15, pady=15)
         card_detalle.pack(fill="both", expand=True, pady=(0, 15))
 
-        # Creación de filas de detalle
-        self._crear_fila_detalle(card_detalle, "🍱  Tipo de menú", self.cliente.menu.nombre)
-        self._crear_fila_detalle(card_detalle, "📅  Sesiones tomadas", str(self.cliente.numero_sesiones))
-        costo_s = float(self.cliente.costo_sesion)
-        self._crear_fila_detalle(card_detalle, "💵  Costo por sesión", f"$ {costo_s:,.0f}")
+        # Obtención de la fecha de registro
+        fecha_reg = getattr(self.cliente, 'fecha_registro', datetime.now().strftime("%d/%m/%Y %H:%M"))
 
-        lbl_formula = tk.Label(
-            card_detalle, 
-            text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {costo_s:,.0f}", 
-            font=("Segoe UI", 9, "italic"), 
-            bg=self.COLOR_TARJETA, 
-            fg="#64748B"
-        )
+        # Creación de filas de detalle
+        self._crear_fila_detalle(card_detalle, "🕒   Fecha de registro", str(fecha_reg))
+        self._crear_fila_detalle(card_detalle, "🍱   Tipo de menú", getattr(self.cliente.menu, 'nombre', getattr(self.cliente.menu, 'tipo_menu', 'N/A')))
+        self._crear_fila_detalle(card_detalle, "📅   Sesiones tomadas", str(self.cliente.numero_sesiones))
+        
+        costo_s = float(getattr(self.cliente, 'costo_sesion', getattr(self.cliente.menu, 'costo_sesion', 0)))
+        self._crear_fila_detalle(card_detalle, "💵   Costo por sesión", f"$ {costo_s:,.0f}")
 
         # Fila de costo total
         frame_costo_total = tk.Frame(card_detalle, bg=self.COLOR_TARJETA)
-        frame_costo_total.pack(fill="x", pady=(0, 5))
+        frame_costo_total.pack(fill="x", pady=(10, 5))
 
-        costo_total_val = self.cliente.calcular_costo_total()
+        lbl_etiqueta_total = tk.Label(
+            frame_costo_total, 
+            text="💰   Costo Total:", 
+            font=("Segoe UI", 11, "bold"), 
+            bg=self.COLOR_TARJETA, 
+            fg="#0F172A"
+        )
+        lbl_etiqueta_total.pack(side="left")
+
+        costo_total_val = self.cliente.calcular_costo_total() if hasattr(self.cliente, 'calcular_costo_total') else costo_s * self.cliente.numero_sesiones
         lbl_val_costo = tk.Label(
             frame_costo_total, 
             text=f"$ {costo_total_val:,.0f}", 
-            font=("Segoe UI", 16, "bold"), 
+            font=("Segoe UI", 14, "bold"), 
             bg="#D1E7DD", 
             fg=self.COLOR_VERDE,
             padx=10,
@@ -147,7 +158,7 @@ class ReporteView(tk.Toplevel):
 
         lbl_formula = tk.Label(
             card_detalle, 
-            text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {self.cliente.costo_sesion:,.0f}", 
+            text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {costo_s:,.0f}", 
             font=("Segoe UI", 9, "italic"), 
             bg=self.COLOR_TARJETA, 
             fg="#64748B"

@@ -16,7 +16,7 @@ class GestionController:
         self._view.set_controller(self) # Conectar el controlador con la vista
 
     #Funcion para guardar los registros
-    def guardar_registro(self) -> bool:
+    def guardar_registro(self, mostrar_alerta: bool = True) -> bool:
         #Valida y guarda los datos ingresados en el formulario.
         identificacion = self._view.txt_identificacion.get().strip()
         nombre = self._view.txt_nombre.get().strip()
@@ -69,13 +69,14 @@ class GestionController:
         self._lista_clientes.append(nuevo_cliente)
         self._cliente_actual = nuevo_cliente
 
-        messagebox.showinfo("Éxito", f"Registro del cliente '{nombre}' guardado correctamente.")
+        if mostrar_alerta:
+            messagebox.showinfo("Éxito", f"Registro del cliente '{nombre}' guardado correctamente.")
         return True
 
     #funcion para mostra el reporte del cliente guardado
     def mostrar_reporte(self):
         if self._cliente_actual is None or self._hay_cambios_en_formulario():
-            exito = self.guardar_registro()
+            exito = self.guardar_registro(mostrar_alerta=False)
             if not exito:
                 return
 
