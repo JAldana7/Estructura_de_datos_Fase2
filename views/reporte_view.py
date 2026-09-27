@@ -1,23 +1,33 @@
-import sys
-import os
+# importaciones necesarias
+import sys, os
 import tkinter as tk
 from tkinter import ttk
 from models.gestionar_clientes import GestionClientes
+from utils.helpers import centrar_ventana
 
 # Permitir ejecuciones directas resolviendo la ruta raíz
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# Clase ReporteView
 class ReporteView(tk.Toplevel):
-    """Ventana modal para visualizar el reporte detallado del cliente."""
-
+    # Constructor de la clase
     def __init__(self, parent, cliente: GestionClientes):
-        super().__init__(parent)
-
-        self.cliente = cliente
+        super().__init__(parent) # hereda comportamiento de Toplevel
+        self.cliente = cliente # contiene la información del cliente para mostrar en el reporte
 
         # Configuración de la ventana
         self.title("Sabor & Sazón — Reporte")
-        self.geometry("500x580")
+
+        # Obtener la carpeta principal del proyecto
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ruta_icono = os.path.join(BASE_DIR, "img", "ico.png")
+        self.icono = tk.PhotoImage(file=ruta_icono)
+        self.iconphoto(False, self.icono)
+
+        # Configuración de tamaño y posición
+        self.ancho = 500
+        self.alto = 580
+        centrar_ventana(self, self.ancho, self.alto)
         self.configure(bg="#F4F6F8")
         self.resizable(False, False)
 
@@ -28,6 +38,7 @@ class ReporteView(tk.Toplevel):
         self._configurar_estilos()
         self._crear_interfaz()
 
+    # Configuración de estilos
     def _configurar_estilos(self):
         self.COLOR_VERDE = "#0F4C3A"
         self.COLOR_FONDO = "#F4F6F8"
@@ -43,10 +54,9 @@ class ReporteView(tk.Toplevel):
         self.style.configure("Close.TButton", font=("Segoe UI", 9, "bold"), background="#FFFFFF", foreground="#EF4444")
         self.style.map("Close.TButton", background=[("active", "#FEE2E2")])
 
+    # Creación de la interfaz
     def _crear_interfaz(self):
-        # -------------------------------------------------------------
-        # 1. ENCABEZADO VERDE
-        # -------------------------------------------------------------
+        # encabezado de la ventana
         header_frame = tk.Frame(self, bg=self.COLOR_VERDE, padx=20, pady=15)
         header_frame.pack(fill="x", side="top")
 
@@ -63,9 +73,7 @@ class ReporteView(tk.Toplevel):
         main_container = tk.Frame(self, bg=self.COLOR_FONDO, padx=20, pady=15)
         main_container.pack(fill="both", expand=True)
 
-        # -------------------------------------------------------------
-        # 2. TARJETA SUPERIOR: PERFIL DEL CLIENTE
-        # -------------------------------------------------------------
+        #  perfil del cliente
         card_cliente = tk.Frame(main_container, bg=self.COLOR_TARJETA, bd=1, relief="solid", highlightbackground="#E2E8F0", padx=15, pady=12)
         card_cliente.pack(fill="x", pady=(0, 12))
 
@@ -103,24 +111,16 @@ class ReporteView(tk.Toplevel):
         )
         lbl_subinfo.pack(anchor="w")
 
-        # -------------------------------------------------------------
-        # 3. TARJETA INFERIOR: DETALLE DEL SERVICIO Y COSTOS
-        # -------------------------------------------------------------
+        # detalles del servicio y costo total
         card_detalle = tk.Frame(main_container, bg=self.COLOR_TARJETA, bd=1, relief="solid", highlightbackground="#E2E8F0", padx=15, pady=15)
         card_detalle.pack(fill="both", expand=True, pady=(0, 15))
 
-        # Fila A: Tipo de Menú
+        # Creación de filas de detalle
         self._crear_fila_detalle(card_detalle, "🍱  Tipo de menú", self.cliente.menu.nombre)
-        
-        # Fila B: Sesiones Tomadas
         self._crear_fila_detalle(card_detalle, "📅  Sesiones tomadas", str(self.cliente.numero_sesiones))
-
-        # Fila C: Costo por Sesión
-        # Línea 119 corregida:
         costo_s = float(self.cliente.costo_sesion)
         self._crear_fila_detalle(card_detalle, "💵  Costo por sesión", f"$ {costo_s:,.0f}")
 
-        # Línea 140 (Fórmula) corregida:
         lbl_formula = tk.Label(
             card_detalle, 
             text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {costo_s:,.0f}", 
@@ -129,7 +129,7 @@ class ReporteView(tk.Toplevel):
             fg="#64748B"
         )
 
-        # --- SECCIÓN DESTACADA: COSTO TOTAL DEL SERVICIO ---
+        # Fila de costo total
         frame_costo_total = tk.Frame(card_detalle, bg=self.COLOR_TARJETA)
         frame_costo_total.pack(fill="x", pady=(0, 5))
 
@@ -145,7 +145,6 @@ class ReporteView(tk.Toplevel):
         )
         lbl_val_costo.pack(side="right")
 
-        # Fórmula explicativa en cursiva
         lbl_formula = tk.Label(
             card_detalle, 
             text=f"costoTotal = {self.cliente.numero_sesiones} sesiones × $ {self.cliente.costo_sesion:,.0f}", 
@@ -155,9 +154,7 @@ class ReporteView(tk.Toplevel):
         )
         lbl_formula.pack(anchor="w", pady=(5, 0))
 
-        # -------------------------------------------------------------
-        # 4. BOTONES INFERIORES
-        # -------------------------------------------------------------
+        # botones de acción
         frame_botones = tk.Frame(main_container, bg=self.COLOR_FONDO)
         frame_botones.pack(fill="x")
 
@@ -170,8 +167,8 @@ class ReporteView(tk.Toplevel):
         btn_cerrar = ttk.Button(frame_botones, text="❌   Cerrar reporte", style="Close.TButton", command=self.destroy)
         btn_cerrar.grid(row=0, column=1, sticky="ew", padx=(5, 0), ipady=6)
 
+    # Método auxiliar para crear una fila de detalle
     def _crear_fila_detalle(self, parent, etiqueta, valor):
-        """Crea una fila alineada clave-valor."""
         f = tk.Frame(parent, bg=self.COLOR_TARJETA)
         f.pack(fill="x", pady=6)
 

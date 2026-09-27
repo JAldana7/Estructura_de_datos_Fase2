@@ -1,31 +1,42 @@
-import sys
-import os
-import ctypes
+#importaciones necesarias para la vista de registro de cliente
+import sys, os, ctypes
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
-
-# Permitir ejecuciones directas resolviendo la ruta raíz
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from utils.helpers import centrar_ventana, solo_numeros, solo_numeros_con_limite, solo_letras
 from models.menu import (
     MenuEjecutivo, MenuVegetariano, MenuDegustacion, 
     MenuInfantil, MenuGourmet
 )
 
+# Permitir ejecuciones directas resolviendo la ruta raíz
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Clase de la vista de registro de cliente
 class RegistroClienteView(tk.Tk):
+    #constructor de la clase
     def __init__(self, controller=None):
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1) # Mejorar la resolución en Windows
         except:
             pass
-        super().__init__()
+        super().__init__() #hereda comportamientos de tk.Tk
 
-        self.controller = controller
+        self.controller = controller # Asigna el controlador si se proporciona
 
         # Configuración principal
         self.title("Sabor & Sazón — Registro de Cliente")
-        self.geometry("750x600")
+
+        # Obtener la carpeta principal del proyecto
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ruta_icono = os.path.join(BASE_DIR, "img", "ico.png")
+        self.icono = tk.PhotoImage(file=ruta_icono)
+        self.iconphoto(False, self.icono)
+
+        # configuración de tamaño y posición
+        self.ancho = 750
+        self.alto = 600
+        centrar_ventana(self, self.ancho, self.alto)
         self.configure(bg="#F4F6F8")
         self.resizable(False, False)
 
@@ -38,29 +49,64 @@ class RegistroClienteView(tk.Tk):
             "Menú gourmet": MenuGourmet()
         }
 
-        # Configurar estilos visuales de TTK
-        self._configurar_estilos()
-
-        # Construir la interfaz
-        self._crear_interfaz()
+        self._configurar_estilos() # Configurar estilos visuales de TTK
+        self._crear_interfaz() # Construir la interfaz
 
         # Si se pasa un controlador en la instanciación, conectarlo de una vez
         if self.controller:
             self.set_controller(self.controller)
 
+    #funcion para crear el formulario de registro de cliente y validar los campos de entrada
+    """
+    def _crear_formulario(self):
+        # Validaciones de entrada
+        vcmd_solo_numeros = (self.register(solo_numeros), '%S')
+        vcmd_id_limite = (self.register(solo_numeros_con_limite), '%S', '%P', 10)
+        vcmd_solo_letras = (self.register(solo_letras), '%S')
+
+        # campo ID
+        tk.Label(self, text="ID: ").pack(anchor="w", padx=20, pady=(10, 2))
+        self.txt_id = ttk.Entry(
+            self, 
+            validate="key", 
+            validatecommand=vcmd_id_limite
+        )
+        self.txt_id.pack(fill="x", padx=20)
+
+        # campo numero de sesión 
+        tk.Label(self, text="Número de Sesión: ").pack(anchor="w", padx=20, pady=(10, 2))
+        self.txt_sesion = ttk.Entry(
+            self, 
+            validate="key", 
+            validatecommand=vcmd_solo_numeros
+        )
+        self.txt_sesion.pack(fill="x", padx=20)
+
+        # campo nombre
+        tk.Label(self, text="Nombre completo:").pack(anchor="w", padx=20, pady=(10, 2))
+        self.txt_nombre = ttk.Entry(
+            self, 
+            validate="key", 
+            validatecommand=vcmd_solo_letras
+        )
+        self.txt_nombre.pack(fill="x", padx=20)"""
+
+    # funcion para asignar el controlador a la vista
     def set_controller(self, controller):
-        """Asigna el controlador y enlaza las acciones de los botones."""
+        #Asigna el controlador y enlaza las acciones de los botones.
         self.controller = controller
         self.btn_guardar.config(command=self.controller.guardar_registro)
         self.btn_reporte.config(command=self.controller.mostrar_reporte)
 
+    # funcion para configurar los estilos de la interfaz
     def _configurar_estilos(self):
         self.style = ttk.Style(self)
         self.style.theme_use('clam')
 
         self.COLOR_VERDE = "#0F4C3A"
         self.COLOR_FONDO = "#F4F6F8"
-        
+
+        # Configuración de estilos para los widgets
         self.style.configure(".", background=self.COLOR_FONDO)
         self.style.configure("Card.TFrame", background="#FFFFFF", relief="flat")
         self.style.configure("Header.TFrame", background=self.COLOR_VERDE)
@@ -80,9 +126,12 @@ class RegistroClienteView(tk.Tk):
         self.style.map("Exit.TButton", background=[("active", "#FEE2E2")])
 
     def _crear_interfaz(self):
-        # -------------------------------------------------------------
-        # 1. ENCABEZADO / BANNER SUPERIOR
-        # -------------------------------------------------------------
+        # Registros de funciones de validación en la vista
+        vcmd_solo_numeros = (self.register(solo_numeros), '%S')
+        vcmd_id_limite = (self.register(solo_numeros_con_limite), '%S', '%P', 10) # Máx 10 dígitos
+        vcmd_solo_letras = (self.register(solo_letras), '%S')
+
+        # Encabezado superior
         header_frame = ttk.Frame(self, style="Header.TFrame", padding=(20, 15))
         header_frame.pack(fill="x", side="top")
 
@@ -101,25 +150,34 @@ class RegistroClienteView(tk.Tk):
         lbl_marca = tk.Label(header_frame, text="🧑‍🍳 Sabor & Sazón", font=("Segoe UI", 12, "bold", "italic"), bg=self.COLOR_VERDE, fg="#FFFFFF")
         lbl_marca.pack(side="right")
 
-        # -------------------------------------------------------------
-        # 2. TARJETA CONTENEDORA (FORMULARIO)
-        # -------------------------------------------------------------
+        # Formulario principal (card)
         card_frame = ttk.Frame(self, style="Card.TFrame", padding=20)
         card_frame.pack(fill="both", expand=True, padx=20, pady=15)
 
         card_frame.columnconfigure(0, weight=1)
         card_frame.columnconfigure(1, weight=1)
 
-        # 1. Identificación y Nombre
+        # Identificación (Solo números, máx 10)
         ttk.Label(card_frame, text="🆔 Identificación *", style="FieldLabel.TLabel").grid(row=0, column=0, sticky="w", pady=(5, 2))
-        self.txt_identificacion = ttk.Entry(card_frame, width=30)
+        self.txt_identificacion = ttk.Entry(
+            card_frame, 
+            width=30, 
+            validate="key", 
+            validatecommand=vcmd_id_limite
+        )
         self.txt_identificacion.grid(row=1, column=0, sticky="ew", padx=(0, 10), pady=(0, 10))
 
+        # Nombre completo (Solo letras y espacios)
         ttk.Label(card_frame, text="👤 Nombre completo *", style="FieldLabel.TLabel").grid(row=0, column=1, sticky="w", pady=(5, 2))
-        self.txt_nombre = ttk.Entry(card_frame, width=30)
+        self.txt_nombre = ttk.Entry(
+            card_frame, 
+            width=30, 
+            validate="key", 
+            validatecommand=vcmd_solo_letras
+        )
         self.txt_nombre.grid(row=1, column=1, sticky="ew", padx=(10, 0), pady=(0, 10))
 
-        # 2. Género
+        # Género
         ttk.Label(card_frame, text="⚧ Género *", style="FieldLabel.TLabel").grid(row=2, column=0, columnspan=2, sticky="w", pady=(5, 2))
         self.var_genero = tk.StringVar(value="Masculino")
 
@@ -129,7 +187,7 @@ class RegistroClienteView(tk.Tk):
         ttk.Radiobutton(frame_genero, text="♂ Masculino", value="Masculino", variable=self.var_genero, style="Custom.TRadiobutton").pack(side="left", padx=(0, 20))
         ttk.Radiobutton(frame_genero, text="♀ Femenino", value="Femenino", variable=self.var_genero, style="Custom.TRadiobutton").pack(side="left")
 
-        # 3. Menú y Costo
+        # Menú y Costo
         ttk.Label(card_frame, text="🍴 Tipo de menú *", style="FieldLabel.TLabel").grid(row=4, column=0, sticky="w", pady=(5, 2))
         self.cmb_menu = ttk.Combobox(card_frame, values=list(self.menus_disponibles.keys()), state="readonly")
         self.cmb_menu.set("Selecciona un tipo de menú")
@@ -141,11 +199,17 @@ class RegistroClienteView(tk.Tk):
         self.txt_costo_sesion.grid(row=5, column=1, sticky="ew", padx=(10, 0), pady=(0, 10))
         self.txt_costo_sesion.config(state="disabled")
 
-        # 4. Sesiones y Fecha
+        # Número de Sesiones (Solo números)
         ttk.Label(card_frame, text="📅 Número de sesiones *", style="FieldLabel.TLabel").grid(row=6, column=0, sticky="w", pady=(5, 2))
-        self.txt_sesiones = ttk.Entry(card_frame, width=30)
+        self.txt_sesiones = ttk.Entry(
+            card_frame, 
+            width=30, 
+            validate="key", 
+            validatecommand=vcmd_solo_numeros
+        )
         self.txt_sesiones.grid(row=7, column=0, sticky="ew", padx=(0, 10), pady=(0, 10))
 
+        # Fecha de Registro
         ttk.Label(card_frame, text="📅 Fecha de registro", style="FieldLabel.TLabel").grid(row=6, column=1, sticky="w", pady=(5, 2))
         self.txt_fecha = ttk.Entry(card_frame, width=30)
         self.txt_fecha.insert(0, datetime.now().strftime("%d/%m/%Y %H:%M"))
@@ -154,9 +218,7 @@ class RegistroClienteView(tk.Tk):
 
         ttk.Label(card_frame, text="ℹ  Los campos marcados con * son obligatorios.", style="Info.TLabel").grid(row=8, column=0, columnspan=2, sticky="w", pady=(10, 0))
 
-        # -------------------------------------------------------------
-        # 3. BARRA DE BOTONES INFERIOR
-        # -------------------------------------------------------------
+        # Barra de botones inferior
         frame_botones = ttk.Frame(self, padding=(20, 0))
         frame_botones.pack(fill="x", side="bottom", pady=(0, 15))
 
@@ -173,8 +235,8 @@ class RegistroClienteView(tk.Tk):
         self.btn_salir = ttk.Button(frame_botones, text="🗑 Salir", style="Exit.TButton", command=self._confirmar_salida)
         self.btn_salir.grid(row=0, column=2, sticky="ew", padx=(5, 0), ipady=5)
 
+    # funcion para actualizar el costo de la sesión basado en el menú seleccionado
     def _actualizar_costo_sesion(self, event):
-        """Actualiza la caja deshabilitada con el costo del menú seleccionando el objeto."""
         seleccion = self.cmb_menu.get()
         if seleccion in self.menus_disponibles:
             obj_menu = self.menus_disponibles[seleccion]
@@ -183,8 +245,8 @@ class RegistroClienteView(tk.Tk):
             self.txt_costo_sesion.insert(0, f"$ {obj_menu.costo_sesion:,.0f}")
             self.txt_costo_sesion.config(state="disabled")
 
+    # funcion para limpiar los campos del formulario
     def limpiar_campos(self):
-        """Limpia los inputs del formulario."""
         self.txt_identificacion.delete(0, tk.END)
         self.txt_nombre.delete(0, tk.END)
         self.txt_sesiones.delete(0, tk.END)
@@ -194,14 +256,8 @@ class RegistroClienteView(tk.Tk):
         self.txt_costo_sesion.config(state="disabled")
         self.var_genero.set("Masculino")
 
+    # funcion para confirmar la salida de la aplicación
     def _confirmar_salida(self):
-        """Muestra cuadro de diálogo de confirmación antes de salir."""
         respuesta = messagebox.askyesno("Confirmar salida", "¿Realmente desea salir de la aplicación?")
         if respuesta:
-            self.destroy()
-
-if __name__ == "__main__":
-    from controllers.gestion_controller import GestionController
-    app = RegistroClienteView()
-    controller = GestionController(app)
-    app.mainloop()
+            self.destroy() # Cierra la ventana principal y termina la aplicación

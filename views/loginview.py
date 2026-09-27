@@ -1,53 +1,65 @@
-import sys
-import os
+#importacion importantes
+import sys, os
 import tkinter as tk
 import ctypes
 from tkinter import ttk, messagebox
+from utils.helpers import centrar_ventana
+from PIL import Image, ImageTk
 
 # Permitir ejecuciones directas resolviendo la ruta raíz
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+#clase de la vista de inicio de sesion
 class LoginView(tk.Tk):
+    #constructor
     def __init__(self, controller=None):
         try:
             ctypes.windll.shcore.SetProcessDpiAwareness(1) # Mejorar la resolución
         except:
             pass
-        super().__init__()
+        super().__init__() #hereda comportamients
 
-        self.controller = controller
+        self.controller = controller # Asigna el controlador
 
-        # Configuración de la ventana principal
+        # Configuración de la ventana principal y 
         self.title("Sabor & Sazón — Acceso")
-        self.geometry("600x580")
+
+        # Obtener la carpeta principal del proyecto
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ruta_icono = os.path.join(BASE_DIR, "img", "ico.png")
+        self.icono = tk.PhotoImage(file=ruta_icono)
+        self.iconphoto(False, self.icono)
+
+        # Configuración de tamaño y posición
+        self.ancho = 600
+        self.alto = 580
+        centrar_ventana(self, self.ancho, self.alto)
         self.configure(bg="#F4F6F8")
         self.resizable(False, False)
 
-        # Estado para mostrar/ocultar contraseña
-        self._password_visible = False
+        self._password_visible = False # Estado para mostrar/ocultar contraseña
+        self._configurar_estilos() # Configuración de estilos visuales
+        self._crear_interfaz() # Construir la interfaz
 
-        # Configuración de estilos visuales
-        self._configurar_estilos()
-
-        # Construir la interfaz
-        self._crear_interfaz()
-
+    # funcion para asignar el controlador a la vista
     def set_controller(self, controller):
-        """Asigna el controlador y vincula las acciones de la UI con sus métodos."""
-        self.controller = controller
+        self.controller = controller # Asigna el controlador a la vista
         
         # Conectar el botón de ingresar con la función procesar_login del controlador
         self.btn_ingresar.config(command=self.controller.procesar_login)
         # Conectar la tecla Enter en la caja de texto
         self.txt_password.bind("<Return>", lambda event: self.controller.procesar_login())
 
+    #funcion para configurar los estilos de la interfaz
     def _configurar_estilos(self):
-        self.style = ttk.Style(self)
+        self.style = ttk.Style(self) 
         self.style.theme_use('clam')
 
+        # Colores personalizados
         self.COLOR_VERDE = "#0F4C3A"
         self.COLOR_FONDO = "#F4F6F8"
 
+        # Configuración de estilos para los widgets
         self.style.configure(".", background=self.COLOR_FONDO)
         self.style.configure("Card.TFrame", background="#FFFFFF")
         self.style.configure("Header.TFrame", background=self.COLOR_VERDE)
@@ -59,16 +71,15 @@ class LoginView(tk.Tk):
                              foreground="#FFFFFF")
         self.style.map("Login.TButton", background=[("active", "#0B3B2D")])
 
+    #funcion para crear la interfaz de usuario
     def _crear_interfaz(self):
-        # -------------------------------------------------------------
-        # 1. BANNER / ENCABEZADO SUPERIOR
-        # -------------------------------------------------------------
+        # banner superior
         header_frame = ttk.Frame(self, style="Header.TFrame", padding=(25, 20))
         header_frame.pack(fill="x", side="top")
-
         left_header = tk.Frame(header_frame, bg=self.COLOR_VERDE)
         left_header.pack(side="left")
 
+        # Logo y subtitulo
         lbl_logo = tk.Label(
             left_header, 
             text="🧑‍🍳 Sabor & Sazón", 
@@ -87,6 +98,7 @@ class LoginView(tk.Tk):
         )
         lbl_subtitulo_header.pack(anchor="w", pady=(2, 0))
 
+        # Slogan
         lbl_slogan = tk.Label(
             header_frame, 
             text="Buena comida,\nmejores momentos", 
@@ -97,9 +109,7 @@ class LoginView(tk.Tk):
         )
         lbl_slogan.pack(side="right")
 
-        # -------------------------------------------------------------
-        # 2. TARJETA BLANCA CONTENEDORA (LOGIN)
-        # -------------------------------------------------------------
+        # contenedor principal (card)
         card_frame = ttk.Frame(self, style="Card.TFrame", padding=25)
         card_frame.pack(fill="both", expand=True, padx=35, pady=25)
 
@@ -188,9 +198,7 @@ class LoginView(tk.Tk):
         )
         self.btn_ingresar.pack(fill="x", ipady=8, pady=(5, 0))
 
-        # -------------------------------------------------------------
-        # 3. PIE DE PÁGINA (FOOTER)
-        # -------------------------------------------------------------
+        # Footer
         footer_frame = tk.Frame(self, bg=self.COLOR_FONDO)
         footer_frame.pack(side="bottom", fill="x", pady=(0, 15))
 
@@ -203,15 +211,12 @@ class LoginView(tk.Tk):
         )
         lbl_footer.pack()
 
+    #funcion para alternar la visibilidad de la contraseña
     def _toggle_password_visibility(self):
-        """Alterna entre ocultar y mostrar el texto de la contraseña."""
+        #Alterna entre ocultar y mostrar el texto de la contraseña.
         if self._password_visible:
             self.txt_password.config(show="*")
             self._password_visible = False
         else:
             self.txt_password.config(show="")
             self._password_visible = True
-"""
-if __name__ == "__main__":
-    app = LoginView()
-    app.mainloop()"""

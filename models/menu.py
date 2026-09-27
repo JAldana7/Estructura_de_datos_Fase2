@@ -1,5 +1,7 @@
+#Importacion para la clase abstrata 
 from abc import ABC, abstractmethod
 
+#clase menu
 class Menu(ABC):
     def __init__(self, nombre: str):
         self._nombre = nombre
@@ -16,7 +18,7 @@ class Menu(ABC):
     def __str__(self) -> str:
         return self._nombre
 
-class MenuEjecutivo(Menu):
+class MenuEjecutivo(Menu): #clase hija que hereda comportamientos de clase madre
     def __init__(self):
         super().__init__("Menú ejecutivo")
 
@@ -24,7 +26,7 @@ class MenuEjecutivo(Menu):
     def costo_sesion(self) -> float:
         return 35000.0
 
-class MenuVegetariano(Menu):
+class MenuVegetariano(Menu): #clase hija que hereda comportamientos de clase madre
     def __init__(self):
         super().__init__("Menú vegetariano")
 
@@ -32,7 +34,7 @@ class MenuVegetariano(Menu):
     def costo_sesion(self) -> float:
         return 28000.0
 
-class MenuDegustacion(Menu):
+class MenuDegustacion(Menu): #clase hija que hereda comportamientos de clase madre
     def __init__(self):
         super().__init__("Menú degustacion")
 
@@ -40,7 +42,7 @@ class MenuDegustacion(Menu):
     def costo_sesion(self) -> float:
         return 75000.0
 
-class MenuInfantil(Menu):
+class MenuInfantil(Menu): #clase hija que hereda comportamientos de clase madre
     def __init__(self):
         super().__init__("Menú infantil")
 
@@ -48,7 +50,7 @@ class MenuInfantil(Menu):
     def costo_sesion(self) -> float:
         return 20000.0
 
-class MenuGourmet(Menu):
+class MenuGourmet(Menu): #clase hija que hereda comportamientos de clase madre
     def __init__(self):
         super().__init__("Menú gourmet")
 
